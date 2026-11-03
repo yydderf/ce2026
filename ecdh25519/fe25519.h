@@ -33,6 +33,7 @@ int fe25519_iseq(const fe25519 *x, const fe25519 *y);
 
 int fe25519_iseq_vartime(const fe25519 *x, const fe25519 *y);
 
+void _fe25519_cmov(fe25519 *r, const fe25519 *x, unsigned char b);
 void fe25519_cmov(fe25519 *r, const fe25519 *x, unsigned char b);
 
 void fe25519_setone(fe25519 *r);

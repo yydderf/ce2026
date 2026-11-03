@@ -25,127 +25,127 @@ unsigned char cmpss[32]  = {0xfe, 0xb3, 0xdd, 0x58, 0x73, 0x4b, 0x42, 0xc8, 0x86
 
 static int run_tests(void)
 {
-  int i;
-  unsigned char pk0[GROUP_GE_PACKEDBYTES];
-  unsigned char pk1[GROUP_GE_PACKEDBYTES];
-  unsigned char ss0[GROUP_GE_PACKEDBYTES];
-  unsigned char ss1[GROUP_GE_PACKEDBYTES];
+    int i;
+    unsigned char pk0[GROUP_GE_PACKEDBYTES];
+    unsigned char pk1[GROUP_GE_PACKEDBYTES];
+    unsigned char ss0[GROUP_GE_PACKEDBYTES];
+    unsigned char ss1[GROUP_GE_PACKEDBYTES];
 
-  hal_send_str("\n=== Test 1: ECDH25519 Test Vector ===\n");
+    hal_send_str("\n=== Test 1: ECDH25519 Test Vector ===\n");
 
-  crypto_scalarmult_base(pk0, sk0);
-  crypto_scalarmult_base(pk1, sk1);
+    crypto_scalarmult_base(pk0, sk0);
+    crypto_scalarmult_base(pk1, sk1);
 
-  crypto_scalarmult(ss0, sk0, pk1);
-  crypto_scalarmult(ss1, sk1, pk0);
+    crypto_scalarmult(ss0, sk0, pk1);
+    crypto_scalarmult(ss1, sk1, pk0);
 
-  for(i=0;i<32;i++)
-  {
-    if(ss0[i] != ss1[i])
+    for(i=0;i<32;i++)
     {
-      hal_send_str("ECDH25519 test vector failed: shared secrets don't match\n");
-      return 1;
+        if(ss0[i] != ss1[i])
+        {
+            hal_send_str("ECDH25519 test vector failed: shared secrets don't match\n");
+            return 1;
+        }
+
+        if(pk0[i] != cmppk0[i])
+        {
+            hal_send_str("ECDH25519 test vector failed: pk0 mismatch\n");
+            return 1;
+        }
+        if(pk1[i] != cmppk1[i])
+        {
+            hal_send_str("ECDH25519 test vector failed: pk1 mismatch\n");
+            return 1;
+        }
+        if(ss0[i] != cmpss[i])
+        {
+            hal_send_str("ECDH25519 test vector failed: shared secret mismatch\n");
+            return 1;
+        }
     }
 
-    if(pk0[i] != cmppk0[i])
-    {
-      hal_send_str("ECDH25519 test vector failed: pk0 mismatch\n");
-      return 1;
-    }
-    if(pk1[i] != cmppk1[i])
-    {
-      hal_send_str("ECDH25519 test vector failed: pk1 mismatch\n");
-      return 1;
-    }
-    if(ss0[i] != cmpss[i])
-    {
-      hal_send_str("ECDH25519 test vector failed: shared secret mismatch\n");
-      return 1;
-    }
-  }
-
-  hal_send_str("✓ ECDH25519 test vector PASSED\n");
-  return 0;
+    hal_send_str("✓ ECDH25519 test vector PASSED\n");
+    return 0;
 }
 
 static void run_speed(void)
 {
-  unsigned char pk[32], ss[32];
-  uint64_t cycles;
-  char cycles_str[64];
+    unsigned char pk[32], ss[32];
+    uint64_t cycles;
+    char cycles_str[64];
 
-  hal_send_str("\n=== Benchmarks ===\n");
+    hal_send_str("\n=== Benchmarks ===\n");
 
-  cycles = hal_get_time();
-  crypto_scalarmult_base(pk, sk0);
-  cycles = hal_get_time() - cycles;
-  hal_send_str("cycles for crypto_scalarmult_base: ");
+    cycles = hal_get_time();
+    crypto_scalarmult_base(pk, sk0);
+    cycles = hal_get_time() - cycles;
+    hal_send_str("cycles for crypto_scalarmult_base: ");
 #ifdef MPS2_AN386
-  (void)cycles;
-  sprintf(cycles_str, "[cycle counts not meaningful in qemu emulation]\n");
+    (void)cycles;
+    sprintf(cycles_str, "[cycle counts not meaningful in qemu emulation]\n");
 #else
-  sprintf(cycles_str, "%llu\n", cycles);
+    sprintf(cycles_str, "%llu\n", cycles);
 #endif
-  hal_send_str(cycles_str);
+    hal_send_str(cycles_str);
 
-  cycles = hal_get_time();
-  crypto_scalarmult(ss, sk0, pk);
-  cycles = hal_get_time() - cycles;
-  hal_send_str("cycles for crypto_scalarmult: ");
+    cycles = hal_get_time();
+    crypto_scalarmult(ss, sk0, pk);
+    cycles = hal_get_time() - cycles;
+    hal_send_str("cycles for crypto_scalarmult: ");
 #ifdef MPS2_AN386
-  (void)cycles;
-  sprintf(cycles_str, "[cycle counts not meaningful in qemu emulation]\n");
+    (void)cycles;
+    sprintf(cycles_str, "[cycle counts not meaningful in qemu emulation]\n");
 #else
-  sprintf(cycles_str, "%llu\n", cycles);
+    sprintf(cycles_str, "%llu\n", cycles);
 #endif
-  hal_send_str(cycles_str);
+    hal_send_str(cycles_str);
 
-  hal_send_str("Benchmarks completed!\n");
+    hal_send_str("Benchmarks completed!\n");
 }
 
 static void run_stack(void)
 {
-  unsigned char pk[32], ss[32];
-  size_t stack_usage;
-  char outstr[128];
+    unsigned char pk[32], ss[32];
+    size_t stack_usage;
+    char outstr[128];
 
-  hal_send_str("\n=== Stack Usage Measurements ===\n");
+    hal_send_str("\n=== Stack Usage Measurements ===\n");
 
-  // Measure stack usage for crypto_scalarmult_base (public key generation)
-  hal_send_str("Measuring crypto_scalarmult_base stack usage...\n");
-  hal_spraystack();
-  crypto_scalarmult_base(pk, sk0);
-  stack_usage = hal_checkstack();
-  sprintf(outstr, "stack usage for crypto_scalarmult_base: %lu bytes", (unsigned long)stack_usage);
-  hal_send_str(outstr);
+    // Measure stack usage for crypto_scalarmult_base (public key generation)
+    hal_send_str("Measuring crypto_scalarmult_base stack usage...\n");
+    hal_spraystack();
+    crypto_scalarmult_base(pk, sk0);
+    stack_usage = hal_checkstack();
+    sprintf(outstr, "stack usage for crypto_scalarmult_base: %lu bytes", (unsigned long)stack_usage);
+    hal_send_str(outstr);
 
-  // Measure stack usage for crypto_scalarmult (shared secret computation)
-  hal_send_str("Measuring crypto_scalarmult stack usage...\n");
-  hal_spraystack();
-  crypto_scalarmult(ss, sk0, pk);
-  stack_usage = hal_checkstack();
-  sprintf(outstr, "stack usage for crypto_scalarmult: %lu bytes", (unsigned long)stack_usage);
-  hal_send_str(outstr);
+    // Measure stack usage for crypto_scalarmult (shared secret computation)
+    hal_send_str("Measuring crypto_scalarmult stack usage...\n");
+    hal_spraystack();
+    crypto_scalarmult(ss, sk0, pk);
+    stack_usage = hal_checkstack();
+    sprintf(outstr, "stack usage for crypto_scalarmult: %lu bytes", (unsigned long)stack_usage);
+    hal_send_str(outstr);
 
-  hal_send_str("Stack measurements completed!\n");
+    hal_send_str("Stack measurements completed!\n");
 }
 
 int main(void)
 {
-  hal_setup(CLOCK_BENCHMARK);
+    hal_setup(CLOCK_BENCHMARK);
 
-  // First test: verify ECDH25519 test vector
-  int test_result = run_tests();
+    // First test: verify ECDH25519 test vector
+    int test_result = run_tests();
 
-  run_speed();
-  run_stack();
+    run_speed();
+    run_stack();
 
-  if(test_result != 0) {
-    hal_send_str("\n*** TEST FAILED ***\n");
-    return -1;
-  }
+    if(test_result != 0) {
+        hal_send_str("\n*** TEST FAILED ***\n");
+        return -1;
+    }
 
-  hal_send_str("\n*** ALL GOOD ***\n");
-  return 0;
+    hal_send_str("\n*** ALL GOOD ***\n");
+    return 0;
 }
 
