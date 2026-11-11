@@ -26,3 +26,6 @@ shake256/common/
 # OS files
 .DS_Store
 Thumbs.db
+
+# precomputed table headers
+*/table.h

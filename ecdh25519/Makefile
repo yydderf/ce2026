@@ -13,3 +13,27 @@ PROJECT_OBJS = $(PROJECT_C_OBJS) $(PROJECT_ASM_OBJS)
 
 # Include the common build infrastructure
 include ../common/common.mk
+
+CFLAGS	+= -MMD -MP
+ASFLAGS	+= -MMD -MP
+
+-include $(PROJECT_OBJS:.o=.d)
+
+PYTHON 	   := python3
+WINDOW 	   ?= 4
+LIMB_RADIX ?= 25.5
+BASE_TABLE ?= table.h
+
+TABLE_ARGS = --window $(WINDOW) --limb-radix $(LIMB_RADIX)
+
+$(BASE_TABLE): gen_table.py
+	$(PYTHON) $< $(TABLE_ARGS) --out $@
+
+$(PROJECT_OBJS): | $(BASE_TABLE)
+
+# project level clean up
+.PHONY: clean-gen
+clean: clean-gen
+
+clean-gen:
+	rm -f $(BASE_TABLE)
