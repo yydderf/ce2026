@@ -19,7 +19,7 @@ const fe25519 fe25519_m1 = {{236, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
 
 
 
-static uint32_t equal(uint32_t a,uint32_t b) /* 16-bit inputs */
+uint32_t equal(uint32_t a,uint32_t b) /* 16-bit inputs */
 {
     uint32_t x = a ^ b; /* 0: yes; 1..65535: no */
     x -= 1; /* 4294967295: yes; 0..65534: no */
@@ -154,6 +154,15 @@ int fe25519_iseq(const fe25519 *x, const fe25519 *y)
     return 1-r;
 }
 
+void nbyte_cmov(unsigned char *dst, const unsigned char *src, size_t n, unsigned char b)
+{
+    b = -b;
+    size_t i;
+    for (i = 0; i < n; i++) {
+        dst[i] = (b & src[i]) ^ (~b & dst[i]);
+    }
+}
+
 // not constant time impl
 void _fe25519_cmov(fe25519 *r, const fe25519 *x, unsigned char b)
 {
@@ -164,11 +173,7 @@ void fe25519_cmov(fe25519 *r, const fe25519 *x, unsigned char b)
 {
     unsigned char *u = (unsigned char *)r;
     unsigned char *v = (unsigned char *)x;
-    unsigned int i;
-    b = -b;
-    for (i = 0; i < sizeof(fe25519); ++i) {
-        u[i] = (b & v[i]) ^ (~b & u[i]);
-    }
+    nbyte_cmov(u, v, sizeof(fe25519), b);
 }
 
 void fe25519_neg(fe25519 *r, const fe25519 *x)

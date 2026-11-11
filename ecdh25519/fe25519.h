@@ -2,6 +2,7 @@
 #define FE25519_H
 
 #include <stdint.h>
+#include <stddef.h>
 
 typedef struct 
 {
@@ -16,6 +17,9 @@ extern const fe25519 fe25519_two;
 extern const fe25519 fe25519_sqrtm1;
 extern const fe25519 fe25519_msqrtm1;
 extern const fe25519 fe25519_m1;
+
+uint32_t equal(uint32_t a, uint32_t b);
+void nbyte_cmov(unsigned char *dst, const unsigned char *src, size_t n, unsigned char b);
 
 void fe25519_freeze(fe25519 *r);
 

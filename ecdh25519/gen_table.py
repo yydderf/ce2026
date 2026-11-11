@@ -211,37 +211,33 @@ class Ed25519TableBuilder(TableBuilder):
             P = self.P
             return "{" + ", ".join(fe(v) for v in ((y + x) % P, (y - x) % P, 2 * self.D * x * y % P)) + "}"
  
-        tag = f"W{self.window_size}_R{str(radix).replace('.', '_')}"
-        guard = f"ED25519_BASE_{tag}_H"
-        lines = [
-            f"/* Ed25519 fixed-base table: window {self.window_size} (radix {self.radix}),",
-            f"   {self.num_tables} tables x {self.entries_per_table} entries,",
-            f"   entry [i][j-1] = j * {self.radix}^i * B as (y+x, y-x, 2d*x*y),",
-            f"   field elements as {n_limbs} limbs of radix 2^{radix},",
-            f"   limb start bits: {', '.join(map(str, starts[:-1]))}. Generated file. */",
+        guard = f"ED25519_BASE_TABLE_H"
+        out = [
+            f"/* Ed25519 fixed-base table: window {self.window_size}, {self.num_tables} tables x {self.entries_per_table} entries.",
+            f"   base_table[i][j-1] = affine (x || y) of j * 2^({self.window_size}*i) * B,",
+            "   each coordinate 32 bytes little-endian. Generated file. */",
             f"#ifndef {guard}",
             f"#define {guard}",
             "",
-            "#include <stdint.h>",
-            "",
             f"#define ED25519_BASE_WINDOW  {self.window_size}",
+            f"#define ED25519_BASE_RADIX   {1 << self.window_size}",
             f"#define ED25519_BASE_TABLES  {self.num_tables}",
+            f"#define ED25519_BASE_NDIGITS {self.num_tables - 1}",
             f"#define ED25519_BASE_ENTRIES {self.entries_per_table}",
             f"#define ED25519_FE_LIMBS     {n_limbs}",
             "",
-            "typedef struct {",
-            f"    {limb_t} yplusx[{n_limbs}], yminusx[{n_limbs}], xy2d[{n_limbs}];",
-            "} ed25519_precomp;",
-            "",
-            "static const ed25519_precomp ed25519_base_table"
-            f"[{self.num_tables}][{self.entries_per_table}] = {{",
+            f"static const unsigned char ed25519_base_table[{self.num_tables}][{self.entries_per_table}][64] = {{",
         ]
         for i, row in enumerate(self._table):
-            lines.append(f"  {{ /* table {i}: weight {self.radix}^{i} */")
-            lines += [f"    {entry(p)}," for p in row]
-            lines.append("  },")
-        lines += ["};", "", f"#endif /* {guard} */", ""]
-        return "\n".join(lines)
+            out.append(f"  {{ /* table {i} */")
+            for p in row:
+                x, y = self.to_affine(p)
+                raw = x.to_bytes(32, "little") + y.to_bytes(32, "little")
+                out.append("    {" + ",".join(f"0x{b:02x}" for b in raw) + "},")
+            out.append("  },")
+        out += ["};", "", f"#endif /* {guard} */", ""]
+        return "\n".join(out)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate an Ed25519 fixed-base table header.")
