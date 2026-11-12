@@ -7,7 +7,7 @@
 #if defined(FE25519_R25P5) && defined(FE25519_R8)
 #error "define only one of FE25519_R25P5 / FE25519_R8"
 #elif defined(FE25519_R25P5)
-#include "fe25519_r25_5.h"
+#include "fe25519_r25p5.h"
 #else
 #include "fe25519_r8.h"
 #endif

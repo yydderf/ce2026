@@ -15,16 +15,26 @@ void fe25519_cswap(fe25519 *r, fe25519 *x, unsigned char b)
 
 int fe25519_iseq(const fe25519 *x, const fe25519 *y)
 {
-    fe25519 t1,t2;
-    int i,r=0;
+    // fe25519 t1,t2;
+    // t1 = *x;
+    // t2 = *y;
+    // fe25519_freeze(&t1);
+    // fe25519_freeze(&t2);
+    // for(i=0;i<32;i++)
+    //     r |= (1-equal(t1.v[i],t2.v[i]));
+    // return 1-r;
+    
+    // for arbitrary limb sizes
+    unsigned char a[32], b[32];
+    uint32_t d = 0;
+    int i;
 
-    t1 = *x;
-    t2 = *y;
-    fe25519_freeze(&t1);
-    fe25519_freeze(&t2);
-    for(i=0;i<32;i++)
-        r |= (1-equal(t1.v[i],t2.v[i]));
-    return 1-r;
+    fe25519_pack(a, x);
+    fe25519_pack(b, y);
+    for (i = 0; i < 32; i++) {
+        d |= (uint32_t)(a[i] ^ b[i]);
+    }
+    return (int)equal(d, 0);
 }
 
 int fe25519_iszero(const fe25519 *x)

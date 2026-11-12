@@ -1,7 +1,7 @@
 # ECDH25519 Project Makefile
 # Modify the source lists below to add your own C and assembly files
 #
-# e.g. make run-qemu PLATFORM=qemu WINDOW=4 FE_IMPL=r8
+# e.g. make run-qemu PLATFORM=qemu WINDOW=4 FE_IMPL=r25p5
 
 # field arithmetic args
 FE_IMPL ?= r25p5
