@@ -25,8 +25,10 @@ void fixed_scalar_mult(group_ge *k, const unsigned char *t);
 
 // sliding-window_scalar_mult
 
-// montgomery_ladder -> constant time
-void ladder_step(fe25519 *xr, fe25519 *zr, fe25519 *xs, fe25519 *zs);
-void ladder_mult(group_ge *k, const group_ge *p, const unsigned char *t);
+// ladders impl
+void ed_ladder_mult(group_ge *k, const group_ge *p, const unsigned char *t);
+void mont_ladder_step(fe25519 *xr, fe25519 *zr, fe25519 *xs, fe25519 *zs, const fe25519 *x1);
+// need conversions in the impl of mont ladder
+void mont_ladder_mult(group_ge *k, const group_ge *p, const unsigned char *t);
 
 #endif

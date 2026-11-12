@@ -142,3 +142,20 @@ void fe25519_invsqrt(fe25519 *r, const fe25519 *x)
 
     *r = t;
 }
+
+// x^(p-2) equiv x^(-1) (mod p)
+// x^(p-2) = x^(2^255 - 21) = (x^(2^252 - 3))^8 * x^3
+void fe25519_invert(fe25519 *r, const fe25519 *x)
+{
+    fe25519 t, x3;
+    // x^3
+    fe25519_square(&x3, x);
+    fe25519_mul(&x3, &x3, x);
+    // x^(2^252 - 3)
+    fe25519_pow2523(&t, x);
+    fe25519_square(&t, &t);
+    fe25519_square(&t, &t);
+    fe25519_square(&t, &t);
+    // (x^(2^252 - 3))^8 * x^3
+    fe25519_mul(r, &t, &x3);
+}

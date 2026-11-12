@@ -101,6 +101,7 @@ const group_ge group_ge_base = {GE25519_BASE_X, GE25519_BASE_Y, GE25519_BASE_Z, 
  * https://eprint.iacr.org/2015/673 and
  * https://ristretto.group/
  */
+// bytes are converted back to the canonical representation of the point
 int group_ge_unpack(group_ge *r, const unsigned char x[GROUP_GE_PACKEDBYTES])
 {
     fe25519 s, s2, chk, yden, ynum, yden2, xden2, isr, xdeninv, ydeninv, t;
@@ -179,6 +180,7 @@ int group_ge_unpack(group_ge *r, const unsigned char x[GROUP_GE_PACKEDBYTES])
  * https://eprint.iacr.org/2015/673 and
  * https://ristretto.group/
  */
+// same group components are encoded so that they have identical bytes
 void group_ge_pack(unsigned char r[GROUP_GE_PACKEDBYTES], const group_ge *x)
 {
     fe25519 d, u1, u2, isr, i1, i2, zinv, deninv, nx, ny, s;
