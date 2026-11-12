@@ -1,5 +1,6 @@
 #include "group.h"
 #include "smult.h"
+#include "helper.h"
 #include "fe25519.h"
 
 // modifies the secret key to address security problems
@@ -32,6 +33,7 @@ int crypto_scalarmult(unsigned char *ss, const unsigned char *sk, const unsigned
     k = p;
     // double_and_add(&k, &p, t);
     double_and_add_always(&k, &p, t);
+    // ladder_mult(&k, &p, t);
 
     // encode from extended coordinates -> s
     group_ge_pack(ss, &k);
@@ -54,7 +56,7 @@ int crypto_scalarmult_base(unsigned char *pk, const unsigned char *sk)
     return 0;
 }
 
-void double_and_add(group_ge *k, const group_ge *p, const unsigned char t[32])
+void double_and_add(group_ge *k, const group_ge *p, const unsigned char *t)
 {
     // the loop is not constant time
     // implement via fixed window for fixed-base point
@@ -75,7 +77,7 @@ void double_and_add(group_ge *k, const group_ge *p, const unsigned char t[32])
     }
 }
 
-void double_and_add_always(group_ge *k, const group_ge *p, const unsigned char t[32])
+void double_and_add_always(group_ge *k, const group_ge *p, const unsigned char *t)
 {
     // longer execution time
     // larger stack size due to additional variables (T, group_ge_neural)
@@ -152,3 +154,10 @@ void fixed_scalar_mult(group_ge *k, const unsigned char *t)
     // ...
 }
 
+// void ladder_step()
+// {
+// }
+// 
+// void ladder_mult(group_ge *k, const group_ge *p, const unsigned char *t)
+// {
+// }
